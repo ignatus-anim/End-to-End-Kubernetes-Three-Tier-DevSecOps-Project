@@ -1,1 +1,2 @@
 Jenkins-Server-TF/.terraform
+.terraform.lock.hcl
