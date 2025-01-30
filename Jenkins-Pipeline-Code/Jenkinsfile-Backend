@@ -43,11 +43,15 @@ pipeline {
         stage('OWASP Dependency-Check Scan') {
             steps {
                 dir('Application-Code/backend') {
-                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
-                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
+                    script {
+                        sh 'dependency-check --update' // Ensures the latest database is used
+                        sh 'dependency-check --scan . --format XML --out dependency-check-report.xml --disableYarnAudit --disableNodeAudit'
+                    }
+                    dependencyCheckPublisher pattern: 'Application-Code/backend/dependency-check-report.xml'
                 }
             }
         }
+
         stage('Trivy File Scan') {
             steps {
                 dir('Application-Code/backend') {
