@@ -43,15 +43,11 @@ pipeline {
         stage('OWASP Dependency-Check Scan') {
             steps {
                 dir('Application-Code/backend') {
-                    script {
-                        sh 'dependency-check --update' // Ensures the latest database is used
-                        sh 'dependency-check --scan . --format XML --out dependency-check-report.xml --disableYarnAudit --disableNodeAudit'
-                    }
-                    dependencyCheckPublisher pattern: 'Application-Code/backend/dependency-check-report.xml'
+                    dependencyCheck additionalArguments: '--scan ./ --disableYarnAudit --disableNodeAudit', odcInstallation: 'DP-Check'
+                    dependencyCheckPublisher pattern: '**/dependency-check-report.xml'
                 }
             }
         }
-
         stage('Trivy File Scan') {
             steps {
                 dir('Application-Code/backend') {
@@ -99,7 +95,7 @@ pipeline {
                     withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
                         sh '''
                             git config user.email "ignatusa3@gmail.com"
-                            git config user.name "ignatus-anim"
+                            git config user.name "Ignatus"
                             BUILD_NUMBER=${BUILD_NUMBER}
                             echo $BUILD_NUMBER
                             imageTag=$(grep -oP '(?<=backend:)[^ ]+' deployment.yaml)
